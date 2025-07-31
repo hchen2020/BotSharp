@@ -1,0 +1,14 @@
+{
+  "name": "util-memory-save_memory",
+  "description": "If the user wants to save the context into memory.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "memory_content_summary": {
+        "type": "string",
+        "description": "Memory content summary."
+      }
+    },
+    "required": [ "memory_content_summary" ]
+  }
+}

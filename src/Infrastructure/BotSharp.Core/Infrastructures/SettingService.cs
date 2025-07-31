@@ -29,7 +29,7 @@ public class SettingService : ISettingService
     {
         var pluginService = _services.GetRequiredService<PluginLoader>();
         var plugins = pluginService.GetPlugins(_services);
-        var plugin = plugins.First(x => x.Module.Settings.Name == settingName);
+        var plugin = plugins.First(x => x.Module.Settings.Name.Equals(settingName, StringComparison.CurrentCultureIgnoreCase));
         var instance = plugin.Module.GetNewSettingsInstance();
 
         _config.Bind(settingName, instance);
