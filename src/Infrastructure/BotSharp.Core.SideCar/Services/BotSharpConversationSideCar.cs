@@ -15,7 +15,6 @@
 ******************************************************************************/
 
 using BotSharp.Abstraction.Repositories.Filters;
-using BotSharp.Abstraction.SideCar.Options;
 using BotSharp.Core.Infrastructures;
 
 namespace BotSharp.Core.SideCar.Services;
