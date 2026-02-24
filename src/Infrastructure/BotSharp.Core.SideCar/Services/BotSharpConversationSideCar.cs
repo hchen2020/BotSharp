@@ -14,6 +14,7 @@
   limitations under the License.
 ******************************************************************************/
 
+using BotSharp.Abstraction.Repositories.Filters;
 using BotSharp.Abstraction.SideCar.Options;
 using BotSharp.Core.Infrastructures;
 
@@ -54,7 +55,7 @@ public class BotSharpConversationSideCar : IConversationSideCar
         await Task.CompletedTask;
     }
 
-    public async Task<List<DialogElement>> GetConversationDialogs(string conversationId)
+    public async Task<List<DialogElement>> GetConversationDialogs(string conversationId, ConversationDialogFilter? filter = null)
     {
         if (!IsValid(conversationId))
         {
