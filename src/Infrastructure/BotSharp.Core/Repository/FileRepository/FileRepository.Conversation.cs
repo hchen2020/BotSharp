@@ -965,9 +965,9 @@ public partial class FileRepository
                     Directory.CreateDirectory(convDir);
                 }
 
-                var filesFile = Path.Combine(convDir, CONV_FILES_FILE);
+                var convFile = Path.Combine(convDir, CONV_FILES_FILE);
                 var json = JsonSerializer.Serialize(file, _options);
-                await File.WriteAllTextAsync(filesFile, json);
+                await File.WriteAllTextAsync(convFile, json);
             }
 
             return true;

@@ -815,7 +815,7 @@ public partial class MongoRepository
                                           IsUpsert = true
                                       };
                                   })
-                                  .ToList<WriteModel<ConversationFileDocument>>();
+                                  .ToList();
 
             if (!operations.IsNullOrEmpty())
             {

@@ -120,6 +120,11 @@ public partial class ConversationController
     [HttpPost("/conversation/{conversationId}/thumbnail")]
     public async Task<bool> SaveConversationThumbnail([FromRoute] string conversationId, [FromBody] ConversationFileRequest request)
     {
+        if (request == null)
+        {
+            return false;
+        }
+
         var db = _services.GetRequiredService<IBotSharpRepository>();
         var result = await db.SaveConversationFiles(
         [
