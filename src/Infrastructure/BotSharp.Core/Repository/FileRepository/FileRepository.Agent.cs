@@ -723,23 +723,22 @@ namespace BotSharp.Core.Repository
             return string.Empty;
         }
 
-        public async Task<AgentTemplate> GetAgentTemplateDetail(string agentId, string templateName)
+        public async Task<AgentTemplate?> GetAgentTemplateDetail(string agentId, string templateName)
         {
-            var template = new AgentTemplate { Name = templateName };
-
             if (string.IsNullOrWhiteSpace(agentId)
             || string.IsNullOrWhiteSpace(templateName))
             {
-                return template;
+                return null;
             }
 
             var baseDir = Path.Combine(_dbSettings.FileRepository, _agentSettings.DataDir, agentId);
             var dir = Path.Combine(baseDir, AGENT_TEMPLATES_FOLDER);
             if (!Directory.Exists(dir))
             {
-                return template;
+                return null;
             }
 
+            AgentTemplate? template = null;
             // Get template content
             foreach (var file in Directory.EnumerateFiles(dir))
             {
@@ -749,19 +748,26 @@ namespace BotSharp.Core.Repository
                 var extension = fileName.Substring(splitIdx + 1);
                 if (name.IsEqualTo(templateName) && extension.IsEqualTo(_agentSettings.TemplateFormat))
                 {
-                    template.Content = await File.ReadAllTextAsync(file);
+                    template = new AgentTemplate
+                    {
+                        Name = templateName,
+                        Content = await File.ReadAllTextAsync(file)
+                    };
                     break;
                 }
             }
 
             // Get template configs
-            var (configs, _) = GetAgentTemplateConfigs(baseDir);
-            var configFile = Path.Combine(baseDir, AGENT_TEMPLATE_CONFIG_FILE);
-            var found = configs?.FirstOrDefault(x => x.Name.IsEqualTo(templateName));
-            if (found != null)
+            if (template != null)
             {
-                template.ResponseFormat = found.ResponseFormat;
-                template.LlmConfig = found.LlmConfig;
+                var (configs, _) = GetAgentTemplateConfigs(baseDir);
+                var configFile = Path.Combine(baseDir, AGENT_TEMPLATE_CONFIG_FILE);
+                var found = configs?.FirstOrDefault(x => x.Name.IsEqualTo(templateName));
+                if (found != null)
+                {
+                    template.ResponseFormat = found.ResponseFormat;
+                    template.LlmConfig = found.LlmConfig;
+                }
             }
 
             return template;

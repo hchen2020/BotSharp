@@ -116,7 +116,7 @@ public partial class AgentService
             return template;
         }
 
-        if (template.LlmConfig == null)
+        if (template.LlmConfig == null || !template.LlmConfig.IsValid)
         {
             var agent = await _db.GetAgent(agentId);
             if (!string.IsNullOrEmpty(agent?.LlmConfig?.Provider)

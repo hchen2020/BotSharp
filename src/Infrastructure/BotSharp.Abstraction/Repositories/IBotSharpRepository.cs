@@ -88,7 +88,7 @@ public interface IBotSharpRepository : IHaveServiceProvider
         => throw new NotImplementedException();
     Task<string> GetAgentTemplate(string agentId, string templateName)
         => throw new NotImplementedException();
-    Task<AgentTemplate> GetAgentTemplateDetail(string agentId, string templateName)
+    Task<AgentTemplate?> GetAgentTemplateDetail(string agentId, string templateName)
         => throw new NotImplementedException();
     Task<bool> PatchAgentTemplate(string agentId, AgentTemplate template)
         => throw new NotImplementedException();
