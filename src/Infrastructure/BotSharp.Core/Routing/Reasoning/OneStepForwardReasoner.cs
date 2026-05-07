@@ -63,7 +63,9 @@ public class OneStepForwardReasoner : IRoutingReasoner
         };
         var response = await completion.GetChatCompletions(router, dialogs);
 
-        var inst = response.Content.JsonContent<FunctionCallFromLlm>();
+        var inst = (response.FunctionArgs ?? response.Content).JsonContent<FunctionCallFromLlm>();
+        var routingCtx = _services.GetRequiredService<IRoutingContext>();
+        _logger.LogInformation($"[OneStepForwardReasoner] ConversationId: {routingCtx.ConversationId}, MessageId: {messageId}, Next instruction: {response.FunctionArgs ?? response.Content}");
 
         // Fix LLM malformed response
         await ReasonerHelper.FixMalformedResponse(_services, inst);
