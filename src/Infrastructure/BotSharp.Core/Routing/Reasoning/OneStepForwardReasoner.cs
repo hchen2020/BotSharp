@@ -63,6 +63,9 @@ public class OneStepForwardReasoner : IRoutingReasoner
         };
         var response = await completion.GetChatCompletions(router, dialogs);
 
+        // Due to format drift, LLMs may complete with finishReason=function_call (instruction in FunctionArgs)
+        // or finishReason=stop (instruction serialized as JSON in Content).
+        // Use FunctionArgs ?? Content to be compatible with both cases.
         var inst = (response.FunctionArgs ?? response.Content).JsonContent<FunctionCallFromLlm>();
         var routingCtx = _services.GetRequiredService<IRoutingContext>();
         _logger.LogInformation($"[OneStepForwardReasoner] ConversationId: {routingCtx.ConversationId}, MessageId: {messageId}, Next instruction: {response.FunctionArgs ?? response.Content}");
