@@ -405,6 +405,12 @@ public partial class ChatCompletionProvider
             }
         }
 
+        // Apply tool_choice only when tools are present; tool_choice is rejected by the API otherwise.
+        if (!options.Tools.IsNullOrEmpty() && _state.GetState("tool_choice") == "required")
+        {
+            options.ToolChoice = ChatToolChoice.CreateRequiredChoice();
+        }
+
         if (!string.IsNullOrEmpty(agent.Knowledges))
         {
             messages.Add(new SystemChatMessage(agent.Knowledges));
