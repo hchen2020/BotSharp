@@ -121,7 +121,7 @@ public class OneStepForwardReasoner : IRoutingReasoner
         string stateValue)
     {
         var states = _services.GetRequiredService<IConversationStateService>();
-        states.SetState(stateKey, stateValue, source: StateSource.Application);
+        states.SetState(stateKey, stateValue, source: StateSource.Application, isNeedVersion: false);
 
         try
         {
@@ -129,7 +129,7 @@ public class OneStepForwardReasoner : IRoutingReasoner
         }
         finally
         {
-            states.RemoveState(stateKey);
+            states.SetState(stateKey, string.Empty, source: StateSource.Application, isNeedVersion: false);
         }
     }
 

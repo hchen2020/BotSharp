@@ -2,6 +2,7 @@
 using BotSharp.Abstraction.MessageHub.Models;
 using BotSharp.Core.Infrastructures.Streams;
 using BotSharp.Core.MessageHub;
+using Microsoft.Extensions.Options;
 using OpenAI.Chat;
 using System.Net.Http;
 
@@ -405,11 +406,7 @@ public partial class ChatCompletionProvider
             }
         }
 
-        // Apply tool_choice only when tools are present; tool_choice is rejected by the API otherwise.
-        if (!options.Tools.IsNullOrEmpty() && _state.GetState("tool_choice") == "required")
-        {
-            options.ToolChoice = ChatToolChoice.CreateRequiredChoice();
-        }
+        AddChatToolChoice(options);
 
         if (!string.IsNullOrEmpty(agent.Knowledges))
         {
@@ -705,6 +702,20 @@ public partial class ChatCompletionProvider
         }
 
         return imageLevel;
+    }
+
+    private void AddChatToolChoice(ChatCompletionOptions options)
+    {
+        if (options.Tools.IsNullOrEmpty())
+        {
+            return;
+        }
+
+        // Apply tool_choice only when tools are present; tool_choice is rejected by the API otherwise.
+        if (_state.GetState("tool_choice").IsEqualTo("required"))
+        {
+            options.ToolChoice = ChatToolChoice.CreateRequiredChoice();
+        }
     }
     #endregion
 }
