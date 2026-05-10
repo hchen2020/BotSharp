@@ -3,14 +3,14 @@ using BotSharp.Abstraction.Entity.Models;
 
 namespace BotSharp.Plugin.KnowledgeBase.Services;
 
-public class TaxonomyKnowledgeOrchestrator : IKnowledgeOrchestrator
+public class TaxonomyKnowledgeBase : IKnowledgeService
 {
     private readonly IServiceProvider _services;
-    private readonly ILogger<TaxonomyKnowledgeOrchestrator> _logger;
+    private readonly ILogger<TaxonomyKnowledgeBase> _logger;
 
-    public TaxonomyKnowledgeOrchestrator(
+    public TaxonomyKnowledgeBase(
         IServiceProvider services,
-        ILogger<TaxonomyKnowledgeOrchestrator> logger)
+        ILogger<TaxonomyKnowledgeBase> logger)
     {
         _services = services;
         _logger = logger;
@@ -18,9 +18,9 @@ public class TaxonomyKnowledgeOrchestrator : IKnowledgeOrchestrator
 
     public string KnowledgeType => KnowledgeBaseType.Taxonomy;
 
-    public async Task<IEnumerable<KnowledgeSearchResult>> Search(string query, string collectionName, KnowledgeSearchOptions options)
+    public async Task<IEnumerable<KnowledgeExecuteResult>> ExecuteQuery(string query, string collectionName, KnowledgeExecuteOptions options)
     {
-        var results = new List<KnowledgeSearchResult>();
+        var results = new List<KnowledgeExecuteResult>();
 
         try
         {
@@ -33,7 +33,7 @@ public class TaxonomyKnowledgeOrchestrator : IKnowledgeOrchestrator
                 return results;
             }
 
-            var taxonomyOptions = options as TaxonomyKnowledgeSearchOptions;
+            var taxonomyOptions = options as TaxonomyKnowledgeExecuteOptions;
             var analysisOptions = new EntityAnalysisOptions
             {
                 DataProviders = taxonomyOptions?.DataProviders,
@@ -53,19 +53,19 @@ public class TaxonomyKnowledgeOrchestrator : IKnowledgeOrchestrator
             {
                 var payload = new Dictionary<string, VectorPayloadValue>
                 {
-                    ["token"] = VectorPayloadValue.BuildStringValue(result.Token)
+                    ["token"] = new VectorPayloadValue(result.Token)
                 };
 
                 if (!string.IsNullOrEmpty(result.CanonicalText))
                 {
-                    payload["canonical_text"] = VectorPayloadValue.BuildStringValue(result.CanonicalText);
+                    payload["canonical_text"] = new VectorPayloadValue(result.CanonicalText);
                 }
 
                 foreach (var kvp in result.Data)
                 {
                     if (!payload.ContainsKey(kvp.Key))
                     {
-                        payload[kvp.Key] = BuildPayloadValue(kvp.Value);
+                        payload[kvp.Key] = new VectorPayloadValue(kvp.Value);
                     }
                 }
 
@@ -82,7 +82,7 @@ public class TaxonomyKnowledgeOrchestrator : IKnowledgeOrchestrator
                     }
                 }
 
-                results.Add(new KnowledgeSearchResult
+                results.Add(new KnowledgeExecuteResult
                 {
                     Id = Guid.NewGuid().ToString(),
                     Payload = payload,
@@ -104,22 +104,5 @@ public class TaxonomyKnowledgeOrchestrator : IKnowledgeOrchestrator
         }
 
         return results;
-    }
-
-    private VectorPayloadValue BuildPayloadValue(object value)
-    {
-        return value switch
-        {
-            string s => VectorPayloadValue.BuildStringValue(s),
-            double d => VectorPayloadValue.BuildDoubleValue(d),
-            float f => VectorPayloadValue.BuildDoubleValue(f),
-            long l => VectorPayloadValue.BuildIntegerValue(l),
-            int i => VectorPayloadValue.BuildIntegerValue(i),
-            short sh => VectorPayloadValue.BuildIntegerValue(sh),
-            byte b => VectorPayloadValue.BuildIntegerValue(b),
-            bool bl => VectorPayloadValue.BuildBooleanValue(bl),
-            DateTime dt => VectorPayloadValue.BuildDatetimeValue(dt),
-            _ => VectorPayloadValue.BuildUnkownValue(value)
-        };
     }
 }

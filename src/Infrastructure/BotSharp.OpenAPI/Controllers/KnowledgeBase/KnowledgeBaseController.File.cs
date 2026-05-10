@@ -1,5 +1,4 @@
 using BotSharp.Abstraction.Files.Utilities;
-using BotSharp.Abstraction.Knowledges.Options;
 using BotSharp.Abstraction.Knowledges.Processors;
 using BotSharp.Abstraction.Knowledges.Responses;
 using BotSharp.OpenAPI.ViewModels.Knowledges;
@@ -15,15 +14,15 @@ public partial class KnowledgeBaseController
         return _services.GetServices<IKnowledgeProcessor>().Select(x => x.Provider);
     }
 
-    [HttpPost("/knowledge/file/{collection}/upload")]
+    [HttpPost("/knowledge/collection/{collection}/file/upload")]
     public async Task<UploadKnowledgeResponse> UploadKnowledgeFiles([FromRoute] string collection, [FromBody] KnowledgeUploadRequest request)
     {
-        var fileOrchestrator = GetKnowledgeFileOrchestrator(request.Orchestrator);
+        var fileOrchestrator = GetKnowledgeFileOrchestrator(request.FileOrchestrator);
         var response = await fileOrchestrator.UploadFilesToKnowledge(collection, request.Files, request.Options);
         return response;
     }
 
-    [HttpPost("/knowledge/file/{collection}/form")]
+    [HttpPost("/knowledge/collection/{collection}/file/form")]
     public async Task<UploadKnowledgeResponse> UploadKnowledgeFiles(
         [FromRoute] string collection,
         [FromForm] IEnumerable<IFormFile> files,
@@ -51,27 +50,27 @@ public partial class KnowledgeBaseController
         return response;
     }
 
-    [HttpDelete("/knowledge/file/{collection}/delete/{fileId}")]
+    [HttpDelete("/knowledge/collection/{collection}/file/{fileId}")]
     public async Task<bool> DeleteKnowledgeFile([FromRoute] string collection, [FromRoute] Guid fileId, [FromQuery] KnowledgeFileRequest? request = null)
     {
-        var fileOrchestrator = GetKnowledgeFileOrchestrator(request?.Orchestrator);
+        var fileOrchestrator = GetKnowledgeFileOrchestrator(request?.FileOrchestrator);
         var options = !string.IsNullOrWhiteSpace(request?.DbProvider) ? new KnowledgeFileOptions { DbProvider = request.DbProvider } : null;
         var response = await fileOrchestrator.DeleteKnowledgeFile(collection, fileId, options);
         return response;
     }
 
-    [HttpDelete("/knowledge/file/{collection}/delete")]
+    [HttpDelete("/knowledge/collection/{collection}/file")]
     public async Task<bool> DeleteKnowledgeFiles([FromRoute] string collection, [FromBody] GetKnowledgeFilesRequest request)
     {
-        var fileOrchestrator = GetKnowledgeFileOrchestrator(request.Orchestrator);
+        var fileOrchestrator = GetKnowledgeFileOrchestrator(request.FileOrchestrator);
         var response = await fileOrchestrator.DeleteKnowledgeFiles(collection, request);
         return response;
     }
 
-    [HttpPost("/knowledge/file/{collection}/page")]
+    [HttpPost("/knowledge/collection/{collection}/file/page")]
     public async Task<PagedItems<KnowledgeFileViewModel>> GetPagedKnowledgeFiles([FromRoute] string collection, [FromBody] GetKnowledgeFilesRequest request)
     {
-        var fileOrchestrator = GetKnowledgeFileOrchestrator(request.Orchestrator);
+        var fileOrchestrator = GetKnowledgeFileOrchestrator(request.FileOrchestrator);
         var data = await fileOrchestrator.GetPagedKnowledgeFiles(collection, request);
 
         return new PagedItems<KnowledgeFileViewModel>
@@ -81,10 +80,10 @@ public partial class KnowledgeBaseController
         };
     }
 
-    [HttpGet("/knowledge/file/{collection}/{fileId}")]
+    [HttpGet("/knowledge/collection/{collection}/file/{fileId}")]
     public async Task<IActionResult> GetKnowledgeFile([FromRoute] string collection, [FromRoute] Guid fileId, [FromQuery] KnowledgeFileRequest? request = null)
     {
-        var fileOrchestrator = GetKnowledgeFileOrchestrator(request?.Orchestrator);
+        var fileOrchestrator = GetKnowledgeFileOrchestrator(request?.FileOrchestrator);
         var options = !string.IsNullOrWhiteSpace(request?.DbProvider) ? new KnowledgeFileOptions { DbProvider = request.DbProvider } : null;
         var file = await fileOrchestrator.GetKnowledgeFileBinaryData(collection, fileId, options);
         var stream = file.FileBinaryData.ToStream();
@@ -93,10 +92,10 @@ public partial class KnowledgeBaseController
         return new FileStreamResult(stream, file.ContentType) { FileDownloadName = file.FileName };
     }
 
-    private IKnowledgeFileOrchestrator? GetKnowledgeFileOrchestrator(string? provider)
+    private IKnowledgeFileOrchestrator GetKnowledgeFileOrchestrator(string? provider)
     {
-        provider ??= "botsharp-knowledge-doc";
-        var found = _services.GetServices<IKnowledgeFileOrchestrator>().FirstOrDefault(x => x.Provider.IsEqualTo(provider));
+        provider ??= "botsharp-knowledge-file";
+        var found = _services.GetServices<IKnowledgeFileOrchestrator>().First(x => x.Provider.IsEqualTo(provider));
         return found;
     }
     #endregion

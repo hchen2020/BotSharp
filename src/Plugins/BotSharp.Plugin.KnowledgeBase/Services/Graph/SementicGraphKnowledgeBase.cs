@@ -2,14 +2,14 @@ using BotSharp.Abstraction.Graph.Options;
 
 namespace BotSharp.Plugin.KnowledgeBase.Services;
 
-public class GraphKnowledgeOrchestrator : IKnowledgeOrchestrator
+public class SementicGraphKnowledgeBase : IKnowledgeService
 {
     private readonly IServiceProvider _services;
-    private readonly ILogger<GraphKnowledgeOrchestrator> _logger;
+    private readonly ILogger<SementicGraphKnowledgeBase> _logger;
 
-    public GraphKnowledgeOrchestrator(
+    public SementicGraphKnowledgeBase(
         IServiceProvider services,
-        ILogger<GraphKnowledgeOrchestrator> logger)
+        ILogger<SementicGraphKnowledgeBase> logger)
     {
         _services = services;
         _logger = logger;
@@ -17,9 +17,9 @@ public class GraphKnowledgeOrchestrator : IKnowledgeOrchestrator
 
     public string KnowledgeType => KnowledgeBaseType.SemanticGraph;
 
-    public async Task<IEnumerable<KnowledgeSearchResult>> Search(string query, string collectionName, KnowledgeSearchOptions options)
+    public async Task<IEnumerable<KnowledgeExecuteResult>> ExecuteQuery(string query, string collectionName, KnowledgeExecuteOptions options)
     {
-        var results = new List<KnowledgeSearchResult>();
+        var results = new List<KnowledgeExecuteResult>();
 
         try
         {
@@ -30,27 +30,19 @@ public class GraphKnowledgeOrchestrator : IKnowledgeOrchestrator
                 return results;
             }
 
-            var graphSearchOptions = options as GraphKnowledgeSearchOptions;
+            var graphExecuteOptions = options as GraphKnowledgeExecuteOptions;
             var graphOptions = new GraphQueryExecuteOptions
             {
-                GraphId = graphSearchOptions?.GraphId,
+                GraphId = graphExecuteOptions?.GraphId,
                 Arguments = options?.SearchArguments
             };
 
             var graphResult = await graphDb.ExecuteQueryAsync(query, graphOptions);
 
-            results = graphResult?.Values?.Select(value =>
+            results = graphResult?.Values?.Select(value => new KnowledgeExecuteResult
             {
-                var payload = value.ToDictionary(
-                    kvp => kvp.Key,
-                    kvp => new VectorPayloadValue(kvp.Value, VectorPayloadDataType.Unknown)
-                );
-
-                return new KnowledgeSearchResult
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    Payload = payload
-                };
+                Id = Guid.NewGuid().ToString(),
+                Payload = value.ToDictionary(kvp => kvp.Key, kvp => new VectorPayloadValue(kvp.Value))
             })?.ToList() ?? [];
         }
         catch (Exception ex)

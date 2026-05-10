@@ -1,6 +1,6 @@
 namespace BotSharp.Abstraction.Knowledges.Options;
 
-public class GraphKnowledgeSearchOptions : KnowledgeSearchOptions
+public class GraphKnowledgeExecuteOptions : KnowledgeExecuteOptions
 {
     public string? GraphId { get; set; }
 }

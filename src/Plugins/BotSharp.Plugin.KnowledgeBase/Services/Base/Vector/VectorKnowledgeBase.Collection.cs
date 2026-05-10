@@ -2,7 +2,7 @@ using BotSharp.Abstraction.VectorStorage.Filters;
 
 namespace BotSharp.Plugin.KnowledgeBase.Services;
 
-public abstract partial class VectorOrchestratorBase
+public abstract partial class VectorKnowledgeBase
 {
     #region Collection
     public virtual async Task<bool> ExistCollection(string collectionName, KnowledgeCollectionOptions options)
@@ -100,6 +100,32 @@ public abstract partial class VectorOrchestratorBase
             VectorStore = x.VectorStore,
             TextEmbedding = x.TextEmbedding
         });
+    }
+
+    public virtual async Task<KnowledgeCollectionDetails?> GetCollectionDetails(string collectionName, KnowledgeCollectionOptions options)
+    {
+        if (string.IsNullOrWhiteSpace(collectionName))
+        {
+            return null;
+        }
+
+        var vectorDb = GetVectorDb(options?.DbProvider);
+        if (vectorDb == null)
+        {
+            return null;
+        }
+
+        var details = await vectorDb.GetCollectionDetails(collectionName);
+        if (details == null)
+        {
+            return null;
+        }
+
+        return new KnowledgeCollectionDetails
+        {
+            Status = details.Status,
+            PayloadSchema = details.PayloadSchema
+        };
     }
 
     public virtual async Task<bool> DeleteCollection(string collectionName, KnowledgeCollectionOptions options)

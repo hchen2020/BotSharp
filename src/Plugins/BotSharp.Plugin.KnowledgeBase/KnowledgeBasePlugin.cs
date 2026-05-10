@@ -1,6 +1,5 @@
 using BotSharp.Abstraction.Plugins.Models;
 using BotSharp.Abstraction.Settings;
-using BotSharp.Plugin.KnowledgeBase.Graph;
 using Microsoft.Extensions.Configuration;
 
 namespace BotSharp.Plugin.KnowledgeBase;
@@ -22,15 +21,13 @@ public class KnowledgeBasePlugin : IBotSharpPlugin
 
         services.AddSingleton<IPdf2TextConverter, PigPdf2TextConverter>();
         services.AddScoped<IAgentUtilityHook, KnowledgeBaseUtilityHook>();
-        services.AddScoped<IKnowledgeService, KnowledgeService>();
 
-        services.AddScoped<IKnowledgeOrchestrator, DocumentKnowledgeOrchestrator>();
-        services.AddScoped<IKnowledgeOrchestrator, QuestionAnswerKnowledgeOrchestrator>();
-        services.AddScoped<IKnowledgeOrchestrator, GraphKnowledgeOrchestrator>();
-        services.AddScoped<IKnowledgeOrchestrator, TaxonomyKnowledgeOrchestrator>();
+        services.AddScoped<IKnowledgeService, DocumentKnowledgeBase>();
+        services.AddScoped<IKnowledgeService, QuestionAnswerKnowledgeBase>();
+        services.AddScoped<IKnowledgeService, SementicGraphKnowledgeBase>();
+        services.AddScoped<IKnowledgeService, TaxonomyKnowledgeBase>();
         services.AddScoped<IKnowledgeFileOrchestrator, KnowledgeFileOrchestrator>();
 
-        services.AddScoped<IGraphKnowledgeService, GraphKnowledgeService>();
         services.AddScoped<IKnowledgeHook, KnowledgeHook>();
         services.AddScoped<IKnowledgeProcessor, TextFileKnowledgeProcessor>();
     }
