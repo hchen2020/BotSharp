@@ -55,7 +55,7 @@ public class MembasePlugin : IBotSharpPlugin
                 Source = "membase",
                 HtmlTag = "iframe",
                 Url = $"https://console.membase.dev/query-editor/{_membaseProjectId}?token={_membaseCredential}",
-                HtmlStyle = "width: 100%; height: 90%;",
+                HtmlStyle = "width: 100%; height: 98%;",
                 FullScreen = true
             }
         });
